@@ -1,0 +1,14 @@
+- keyname: webhook_url
+  field_type: copyable_webhook_url
+  name: Webhook URL
+  description: "Copy this URL into your <code>.env</code> file on your Mac."
+- keyname: setup_instructions
+  field_type: author_bio
+  name: Setup Instructions
+  description: |
+    This plugin requires a script running on your Mac to scrape Claude Code usage stats and post them to the webhook above.
+          <br><br>
+          <strong>Full setup guide:</strong>
+          <a href="https://github.com/carledwards/claude-usage-trmnl" target="_blank">
+          github.com/carledwards/claude-usage-trmnl</a>
+  github_url: "https://github.com/carledwards/claude-usage-trmnl"
