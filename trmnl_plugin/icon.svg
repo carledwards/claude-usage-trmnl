@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#fff"/>
+
+  <!--
+    Pixel grid from the Unicode block characters:
+     ▐▛███▜▌
+    ▝▜█████▛▘
+      ▘▘ ▝▝
+
+    Each character = 2x2 quadrants on a half-cell grid.
+    Grid: 18 cols x 5 rows
+    Pixel width = 28px, pixel height = 42px (1.5x aspect ratio)
+  -->
+
+  <!-- Row 0: top of head -->
+  <rect x="88" y="102" width="336" height="42" fill="#000"/>
+
+  <!-- Row 1: eyes row (3 segments with 2 eye gaps) -->
+  <rect x="88"  y="144" width="56"  height="60" fill="#000"/>
+  <rect x="172" y="144" width="168" height="60" fill="#000"/>
+  <rect x="368" y="144" width="56"  height="60" fill="#000"/>
+
+  <!-- Row 2: widest row (body) -->
+  <rect x="32" y="186" width="448" height="60" fill="#000"/>
+
+  <!-- Row 3: lower body -->
+  <rect x="88" y="228" width="336" height="60" fill="#000"/>
+
+  <!-- Row 4: feet (4 individual pixels) -->
+  <rect x="116" y="270" width="28" height="60" fill="#000"/>
+  <rect x="172" y="270" width="28" height="60" fill="#000"/>
+  <rect x="312" y="270" width="28" height="60" fill="#000"/>
+  <rect x="368" y="270" width="28" height="60" fill="#000"/>
+
+  <!-- Progress bar -->
+  <rect x="32" y="370" width="448" height="40" rx="6" fill="none" stroke="#000" stroke-width="4"/>
+  <rect x="36" y="374" width="270" height="32" rx="4" fill="#000"/>
+</svg>

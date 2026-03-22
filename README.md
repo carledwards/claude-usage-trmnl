@@ -57,7 +57,11 @@ Edit `.env` and paste your TRMNL Private Plugin webhook URL. You can find this i
 
 1. In your [TRMNL dashboard](https://usetrmnl.com), go to **Plugins → Private Plugin**
 2. Create a new plugin
-3. Paste the contents of `trmnl_template.html` into the **Markup** field for the **Full** view
+3. Paste the contents of each markup file from `trmnl_plugin/` into the corresponding layout view:
+   - `markup_full.html` → **Full**
+   - `markup_half_vertical.html` → **Half Vertical**
+   - `markup_half_horizontal.html` → **Half Horizontal**
+   - `markup_quadrant.html` → **Quadrant**
 4. Copy the webhook URL into your `.env` file (step 2 above)
 5. Set the plugin's **refresh interval to 15 minutes** in the TRMNL dashboard
 
@@ -144,7 +148,7 @@ launchctl start com.claude-usage-trmnl.agent
 | `setup.sh` | Creates venv, installs dependencies, verifies configuration |
 | `install.sh` | Generates and installs the launchd scheduled job |
 | `uninstall.sh` | Removes the launchd scheduled job |
-| `trmnl_template.html` | HTML/CSS template to paste into your TRMNL Private Plugin |
+| `trmnl_plugin/` | TRMNL plugin assets: markup templates (full, half, quadrant), icon, and plugin.yml |
 | `.env.example` | Template for your webhook URL |
 
 ## Troubleshooting
