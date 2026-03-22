@@ -10,6 +10,7 @@ Requires TRMNL_WEBHOOK_URL to be set in .env or as an environment variable.
 
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.request
@@ -62,16 +63,27 @@ def build_payload(metrics: dict) -> dict:
     def get(key, field, default="—"):
         return str(metrics.get(key, {}).get(field, default))
 
+    def strip_tz(val):
+        """Strip timezone suffix like '(America/Los_Angeles)' for compact layouts."""
+        return re.sub(r'\s*\(.*?\)\s*$', '', val)
+
     now_fmt = datetime.now().strftime("%b %-d at %-I:%M%p")
 
+    session_reset = get("session", "reset")
+    week_all_reset = get("week_all", "reset")
+    week_sonnet_reset = get("week_sonnet", "reset")
+
     return {
-        "session_pct":       get("session",     "pct"),
-        "session_reset":     get("session",     "reset"),
-        "week_all_pct":      get("week_all",    "pct"),
-        "week_all_reset":    get("week_all",    "reset"),
-        "week_sonnet_pct":   get("week_sonnet", "pct"),
-        "week_sonnet_reset": get("week_sonnet", "reset"),
-        "updated_at":        now_fmt,
+        "session_pct":              get("session",     "pct"),
+        "session_reset":            session_reset,
+        "session_reset_short":      strip_tz(session_reset),
+        "week_all_pct":             get("week_all",    "pct"),
+        "week_all_reset":           week_all_reset,
+        "week_all_reset_short":     strip_tz(week_all_reset),
+        "week_sonnet_pct":          get("week_sonnet", "pct"),
+        "week_sonnet_reset":        week_sonnet_reset,
+        "week_sonnet_reset_short":  strip_tz(week_sonnet_reset),
+        "updated_at":               now_fmt,
     }
 
 

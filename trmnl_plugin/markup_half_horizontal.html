@@ -1,0 +1,95 @@
+<!--
+  TRMNL Plugin Markup — Claude Usage (Half Horizontal view)
+  Monospace / left-justified / terminal-style + pixel robot
+-->
+
+<style>
+  body, .label, .label--small, .label--large, .label--xlarge,
+  .value--xsmall, .value--small, .value--tnums,
+  .description, .title {
+    font-family: 'Courier New', Courier, monospace !important;
+  }
+
+  .terminal-title {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .terminal-title, .metric-label, .metric-pct {
+    font-weight: bold;
+  }
+
+  .metric-label {
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .metric-top {
+    margin-bottom: -2px;
+  }
+
+  .bar-track {
+    height: 12px;
+    border: 2px solid #000;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+  }
+
+  .robot {
+    line-height: 1.0;
+    white-space: pre;
+  }
+
+  .footer {
+    letter-spacing: 0.04em;
+  }
+</style>
+
+<div class="flex flex--col flex--between p--small mt--xsmall h--full">
+
+  <div class="flex flex--row flex--bottom flex--between pb--xsmall border--h-1">
+    <div class="terminal-title label--small">Claude Usage</div>
+    <pre class="robot"> ▐▛███▜▌
+▝▜█████▛▘
+  ▘▘ ▝▝</pre>
+  </div>
+
+  <div class="flex flex--col gap--none">
+    <div class="flex flex--row flex--bottom flex--between metric-top">
+      <span class="metric-label label--small grow">Session</span>
+      <span class="metric-pct value--xxsmall value--tnums">{{ session_pct }}%</span>
+    </div>
+    <div class="bar-track w--full rounded--xsmall bg--white">
+      <div class="bar-fill bg--black" style="width:{{ session_pct }}%"></div>
+    </div>
+    <div class="label--small text--black">Resets {{ session_reset }}</div>
+  </div>
+
+  <div class="flex flex--col gap--none">
+    <div class="flex flex--row flex--bottom flex--between metric-top">
+      <span class="metric-label label--small grow">Week &middot; All Models</span>
+      <span class="metric-pct value--xxsmall value--tnums">{{ week_all_pct }}%</span>
+    </div>
+    <div class="bar-track w--full rounded--xsmall bg--white">
+      <div class="bar-fill bg--black" style="width:{{ week_all_pct }}%"></div>
+    </div>
+    <div class="label--small text--black">Resets {{ week_all_reset }}</div>
+  </div>
+
+  <div class="flex flex--col gap--none">
+    <div class="flex flex--row flex--bottom flex--between metric-top">
+      <span class="metric-label label--small grow">Week &middot; Sonnet</span>
+      <span class="metric-pct value--xxsmall value--tnums">{{ week_sonnet_pct }}%</span>
+    </div>
+    <div class="bar-track w--full rounded--xsmall bg--white">
+      <div class="bar-fill bg--black" style="width:{{ week_sonnet_pct }}%"></div>
+    </div>
+    <div class="label--small text--black">Resets {{ week_sonnet_reset }}</div>
+  </div>
+
+  <div class="footer label--small text--black">Updated {{ updated_at }}</div>
+
+</div>
