@@ -139,9 +139,18 @@ def scrape() -> dict:
     time.sleep(2.5)
     read_pending(child, stream, timeout=2.0)
 
-    # ── Capture rendered screen ───────────────────────────────────────────────
-    # /usage opens directly on the Usage tab — no arrow-key navigation needed.
+    # ── Wait for usage data to load ──────────────────────────────────────────
+    # Claude Code may show a loading state before the actual metrics appear.
+    # Retry reading until we see "% used" or hit the max attempts.
     final_screen = render_screen(screen)
+    max_retries = 5
+    for attempt in range(max_retries):
+        if "% used" in final_screen:
+            break
+        info(f"Usage data not loaded yet, retrying ({attempt + 1}/{max_retries})…")
+        time.sleep(2.0)
+        read_pending(child, stream, timeout=2.0)
+        final_screen = render_screen(screen)
 
     info("=== RENDERED SCREEN ===")
     info(final_screen)

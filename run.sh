@@ -31,5 +31,8 @@ fi
 # Activate the virtual environment
 source "$SCRIPT_DIR/venv/bin/activate"
 
+# Prefix all output with timestamps
+stamp() { while IFS= read -r line; do echo "$(date '+%Y-%m-%d %H:%M:%S') $line"; done; }
+
 # Run the scraper → TRMNL poster
-python3 "$SCRIPT_DIR/post_trmnl.py"
+python3 "$SCRIPT_DIR/post_trmnl.py" 2>&1 | stamp
