@@ -1,91 +1,44 @@
-<!--
-  TRMNL Private Plugin Markup — Claude Usage
-  Monospace / left-justified / terminal-style + pixel robot
--->
+<!-- Claude Usage — Half Vertical view -->
 
-<style>
-  body, .label, .label--small, .label--large, .label--xlarge,
-  .value--xsmall, .value--small, .value--tnums,
-  .description, .title {
-    font-family: 'Courier New', Courier, monospace !important;
-  }
-
-  .terminal-title, .metric-label, .metric-pct {
-    font-weight: bold;
-  }
-
-  .terminal-title {
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .metric-label {
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .bar-track {
-    height: 16px;
-    border: 2px solid #000;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-  }
-
-  .robot {
-    line-height: 1.0;
-    white-space: pre;
-  }
-
-  .footer {
-    letter-spacing: 0.04em;
-  }
-</style>
-
-<div class="flex flex--col flex--between p--medium h--full">
-
-  <div class="flex flex--row flex--bottom flex--between pb--small border--h-1">
-    <div class="terminal-title label--large">Claude Usage</div>
-    <pre class="robot"> ▐▛███▜▌
-▝▜█████▛▘
-  ▘▘ ▝▝</pre>
+<div class="view view--half_vertical">
+  <div class="title_bar">
+    <span class="title">Claude Usage</span>
+    <span class="instance">{{ updated_at }}</span>
   </div>
+  <div class="layout layout--col gap--large lg:gap--xlarge">
 
-  <div class="flex flex--col gap--xsmall">
-    <div class="flex flex--row flex--bottom flex--between">
-      <span class="metric-label label--xlarge grow">Session</span>
-      <span class="metric-pct value--small value--tnums">{{ session_pct }}%</span>
+    <div class="progress-bar lg:progress-bar--large stretch-x">
+      <div class="content">
+        <span class="label lg:label--large">Session</span>
+        <span class="value value--xxsmall lg:value--xsmall">{{ session_pct }}%</span>
+      </div>
+      <div class="track">
+        <div class="fill" style="width:{{ session_pct }}%"></div>
+      </div>
+      <span class="description lg:description--large">Resets {{ session_reset_short }}</span>
     </div>
-    <div class="bar-track w--full rounded--xsmall bg--white">
-      <div class="bar-fill bg--black" style="width:{{ session_pct }}%"></div>
+
+    <div class="progress-bar lg:progress-bar--large stretch-x">
+      <div class="content">
+        <span class="label lg:label--large">Week · All Models</span>
+        <span class="value value--xxsmall lg:value--xsmall">{{ week_all_pct }}%</span>
+      </div>
+      <div class="track">
+        <div class="fill" style="width:{{ week_all_pct }}%"></div>
+      </div>
+      <span class="description lg:description--large">Resets {{ week_all_reset_short }}</span>
     </div>
-    <div class="description">Resets {{ session_reset_short }}</div>
+
+    <div class="progress-bar lg:progress-bar--large stretch-x">
+      <div class="content">
+        <span class="label lg:label--large">Week · Sonnet</span>
+        <span class="value value--xxsmall lg:value--xsmall">{{ week_sonnet_pct }}%</span>
+      </div>
+      <div class="track">
+        <div class="fill" style="width:{{ week_sonnet_pct }}%"></div>
+      </div>
+      <span class="description lg:description--large">Resets {{ week_sonnet_reset_short }}</span>
+    </div>
+
   </div>
-
-  <div class="flex flex--col gap--xsmall">
-    <div class="flex flex--row flex--bottom flex--between">
-      <span class="metric-label label--xlarge grow">Week &middot; All Models</span>
-      <span class="metric-pct value--small value--tnums">{{ week_all_pct }}%</span>
-    </div>
-    <div class="bar-track w--full rounded--xsmall bg--white">
-      <div class="bar-fill bg--black" style="width:{{ week_all_pct }}%"></div>
-    </div>
-    <div class="description">Resets {{ week_all_reset_short }}</div>
-  </div>
-
-  <div class="flex flex--col gap--xsmall">
-    <div class="flex flex--row flex--bottom flex--between">
-      <span class="metric-label label--xlarge grow">Week &middot; Sonnet</span>
-      <span class="metric-pct value--small value--tnums">{{ week_sonnet_pct }}%</span>
-    </div>
-    <div class="bar-track w--full rounded--xsmall bg--white">
-      <div class="bar-fill bg--black" style="width:{{ week_sonnet_pct }}%"></div>
-    </div>
-    <div class="description">Resets {{ week_sonnet_reset_short }}</div>
-  </div>
-
-  <div class="footer description text--black">Updated {{ updated_at }}</div>
-
 </div>
