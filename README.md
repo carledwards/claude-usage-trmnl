@@ -170,6 +170,10 @@ Check that the launchd job is loaded: `launchctl list | grep claude-usage`. Revi
 **403 from TRMNL webhook**
 Verify your webhook URL in `.env` is correct and includes the full path with your plugin UUID.
 
+## TRMNL Plugin
+
+This plugin is available in the TRMNL Recipe Gallery: [Claude Usage → TRMNL](https://trmnl.com/recipes/263932)
+
 ## License
 
 MIT
