@@ -8,7 +8,7 @@
   name: Claude Usage for TRMNL
   description: >
     Displays your Claude Code usage stats (session, weekly all-models,
-    and weekly Sonnet) on your TRMNL e-ink display. A small script runs
+    and weekly per-model) on your TRMNL e-ink display. A small script runs
     on your Mac every 5 minutes to scrape the data and post it to your
     webhook. See the <a href="https://github.com/carledwards/claude-usage-trmnl">setup guide</a> to get started.
   category: programming,productivity

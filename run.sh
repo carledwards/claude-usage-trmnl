@@ -35,4 +35,5 @@ source "$SCRIPT_DIR/venv/bin/activate"
 stamp() { while IFS= read -r line; do echo "$(date '+%Y-%m-%d %H:%M:%S') $line"; done; }
 
 # Run the scraper → TRMNL poster
-python3 "$SCRIPT_DIR/post_trmnl.py" 2>&1 | stamp
+# Args are passed through, so `./run.sh --fake` posts canned metrics.
+python3 "$SCRIPT_DIR/post_trmnl.py" "$@" 2>&1 | stamp

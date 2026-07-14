@@ -7,7 +7,7 @@ How it works:
   2. Waits for the interactive prompt to appear
   3. Sends /usage to open the usage modal
   4. Renders the terminal through pyte (a proper terminal emulator)
-  5. Parses the three metrics: session %, week-all %, week-sonnet %
+  5. Parses the three metrics: session %, week-all %, week-<model> %
   6. Prints JSON to stdout; debug info goes to stderr
 
 Usage:
@@ -180,43 +180,58 @@ def scrape() -> dict:
 
 # ── Metric parser ─────────────────────────────────────────────────────────────
 
+WEEK_HEADER = re.compile(r"current week\s*\((.+?)\)", re.IGNORECASE)
+
+
 def extract_metrics(text: str) -> dict:
     """
     Parse the three usage blocks from the /usage screen.
 
-    Actual format observed in Claude Code v2.1.81:
+    Actual format observed in Claude Code v2.1.209:
         Current session
-        ▌                                                  1% used
-        Resets 5pm (America/Los_Angeles)
+        ▌                                                  2% used
+        Resets 12pm (America/Los_Angeles)
 
         Current week (all models)
-        █                                                  2% used
-        Resets Mar 27 at 9am (America/Los_Angeles)
+        █████                                              10% used
+        Resets Jul 19 at 5am (America/Los_Angeles)
 
-        Current week (Sonnet only)
-        █                                                  2% used
-        Resets Mar 23 at 7am (America/Los_Angeles)
+        Current week (Fable)
+        ████████                                           16% used
+        Resets Jul 19 at 5am (America/Los_Angeles)
+
+    The model named in the third block changes as Anthropic ships new models
+    (it was "Sonnet only" before "Fable"), so the name is read off the screen
+    rather than matched against a hardcoded list.
 
     Returns:
         {
-          "session":      {"pct": 1,  "reset": "5pm (America/Los_Angeles)"},
-          "week_all":     {"pct": 2,  "reset": "Mar 27 at 9am (America/Los_Angeles)"},
-          "week_sonnet":  {"pct": 2,  "reset": "Mar 23 at 7am (America/Los_Angeles)"},
+          "session":     {"pct": 2,  "reset": "12pm (America/Los_Angeles)"},
+          "week_all":    {"pct": 10, "reset": "Jul 19 at 5am (America/Los_Angeles)"},
+          "week_model":  {"pct": 16, "reset": "Jul 19 at 5am (...)", "name": "Fable"},
         }
     """
     metrics: dict = {}
     lines = text.split("\n")
 
     for i, line in enumerate(lines):
-        low = line.lower().strip()
+        stripped = line.strip()
+        low = stripped.lower()
+        name = None
 
         # Identify which block this header line introduces
+        week = WEEK_HEADER.search(stripped)
         if "current session" in low and "session" not in metrics:
             key = "session"
-        elif "current week" in low and "sonnet" not in low and "week_all" not in metrics:
+        elif week and week.group(1).strip().lower() == "all models":
+            if "week_all" in metrics:
+                continue
             key = "week_all"
-        elif "current week" in low and "sonnet" in low and "week_sonnet" not in metrics:
-            key = "week_sonnet"
+        elif week:
+            if "week_model" in metrics:
+                continue
+            key = "week_model"
+            name = week.group(1).strip()
         else:
             continue
 
@@ -224,6 +239,8 @@ def extract_metrics(text: str) -> dict:
         block = "\n".join(lines[i : i + 4])
         entry = _parse_block(block)
         if entry:
+            if name:
+                entry["name"] = name
             metrics[key] = entry
 
     return metrics

@@ -3,7 +3,8 @@
 post_trmnl.py — Run claude_usage_scraper.py and POST the results to a TRMNL private plugin webhook.
 
 Usage:
-  python3 post_trmnl.py
+  python3 post_trmnl.py            # scrape, then post
+  python3 post_trmnl.py --fake     # post canned metrics without spawning claude
 
 Requires TRMNL_WEBHOOK_URL to be set in .env or as an environment variable.
 """
@@ -22,6 +23,14 @@ from pathlib import Path
 
 WEBHOOK_URL = os.environ.get("TRMNL_WEBHOOK_URL", "")
 SCRAPER = Path(__file__).parent / "claude_usage_scraper.py"
+
+# Stand-in for a real scrape, so the TRMNL layout can be iterated on without
+# waiting ~30s for a `claude` spawn. Used by --fake.
+SAMPLE_METRICS = {
+    "session":    {"pct": 15, "reset": "7pm (America/Los_Angeles)"},
+    "week_all":   {"pct": 43, "reset": "Jul 19 at 5am (America/Los_Angeles)"},
+    "week_model": {"pct": 21, "reset": "Jul 19 at 5am (America/Los_Angeles)", "name": "Fable"},
+}
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -44,24 +53,30 @@ def build_payload(metrics: dict) -> dict:
 
     Input:
         {
-          "session":     {"pct": 1,  "reset": "4:59pm (America/Los_Angeles)"},
-          "week_all":    {"pct": 2,  "reset": "Mar 27 at 8:59am (...)"},
-          "week_sonnet": {"pct": 2,  "reset": "Mar 23 at 7am (...)"},
+          "session":    {"pct": 1,  "reset": "4:59pm (America/Los_Angeles)"},
+          "week_all":   {"pct": 2,  "reset": "Mar 27 at 8:59am (...)"},
+          "week_model": {"pct": 2,  "reset": "Mar 23 at 7am (...)", "name": "Fable"},
         }
 
     Output (TRMNL merge_variables):
         {
-          "session_pct":       "1",
-          "session_reset":     "4:59pm (America/Los_Angeles)",
-          "week_all_pct":      "2",
-          "week_all_reset":    "Mar 27 at 8:59am (...)",
-          "week_sonnet_pct":   "2",
-          "week_sonnet_reset": "Mar 23 at 7am (...)",
-          "updated_at":        "Mar 21 at 4:59pm",
+          "session_pct":      "1",
+          "session_reset":    "4:59pm (America/Los_Angeles)",
+          "week_all_pct":     "2",
+          "week_all_reset":   "Mar 27 at 8:59am (...)",
+          "week_model_pct":   "2",
+          "week_model_reset": "Mar 23 at 7am (...)",
+          "week_model_name":  "Fable",
+          "updated_at":       "Mar 21 at 4:59pm",
         }
     """
     def get(key, field, default="—"):
         return str(metrics.get(key, {}).get(field, default))
+
+    def pct(key):
+        # Percentages are interpolated straight into `style="width:{{ x }}%"`,
+        # so a missing block must fall back to a number, not an em dash.
+        return get(key, "pct", default="0")
 
     def strip_tz(val):
         """Strip timezone suffix like '(America/Los_Angeles)' for compact layouts."""
@@ -71,19 +86,20 @@ def build_payload(metrics: dict) -> dict:
 
     session_reset = get("session", "reset")
     week_all_reset = get("week_all", "reset")
-    week_sonnet_reset = get("week_sonnet", "reset")
+    week_model_reset = get("week_model", "reset")
 
     return {
-        "session_pct":              get("session",     "pct"),
-        "session_reset":            session_reset,
-        "session_reset_short":      strip_tz(session_reset),
-        "week_all_pct":             get("week_all",    "pct"),
-        "week_all_reset":           week_all_reset,
-        "week_all_reset_short":     strip_tz(week_all_reset),
-        "week_sonnet_pct":          get("week_sonnet", "pct"),
-        "week_sonnet_reset":        week_sonnet_reset,
-        "week_sonnet_reset_short":  strip_tz(week_sonnet_reset),
-        "updated_at":               now_fmt,
+        "session_pct":             pct("session"),
+        "session_reset":           session_reset,
+        "session_reset_short":     strip_tz(session_reset),
+        "week_all_pct":            pct("week_all"),
+        "week_all_reset":          week_all_reset,
+        "week_all_reset_short":    strip_tz(week_all_reset),
+        "week_model_pct":          pct("week_model"),
+        "week_model_reset":        week_model_reset,
+        "week_model_reset_short":  strip_tz(week_model_reset),
+        "week_model_name":         get("week_model", "name", default="Model"),
+        "updated_at":              now_fmt,
     }
 
 
@@ -117,14 +133,19 @@ def post_to_trmnl(merge_variables: dict) -> None:
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    print("Running scraper…")
-    data = run_scraper()
+    if "--fake" in sys.argv:
+        print("Using canned metrics (--fake); skipping scraper.")
+        metrics = SAMPLE_METRICS
+    else:
+        print("Running scraper…")
+        data = run_scraper()
 
-    if not data.get("ok"):
-        print(f"Scraper error: {data.get('error', 'unknown')}", file=sys.stderr)
-        sys.exit(1)
+        if not data.get("ok"):
+            print(f"Scraper error: {data.get('error', 'unknown')}", file=sys.stderr)
+            sys.exit(1)
 
-    metrics = data["metrics"]
+        metrics = data["metrics"]
+
     print(f"Metrics: {json.dumps(metrics, indent=2)}")
 
     merge_vars = build_payload(metrics)

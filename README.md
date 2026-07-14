@@ -8,7 +8,7 @@ Shows three metrics pulled directly from Claude Code's `/usage` command:
 
 - **Session** — current session usage percentage and reset time
 - **Week · All Models** — weekly usage across all models
-- **Week · Sonnet** — weekly Sonnet-specific usage
+- **Week · &lt;Model&gt;** — weekly usage against the per-model limit. Claude Code names the model in this row (currently Fable); the scraper reads whichever name is on screen, so the label follows along when it changes.
 
 ## What This Runs on Your Mac
 
@@ -92,6 +92,8 @@ Before scheduling anything, verify the full pipeline works end-to-end:
 ```
 
 You should see the scraper run, metrics parsed, and a successful POST to TRMNL. Check your TRMNL dashboard to confirm the data arrived. If something isn't right, this is the time to fix it.
+
+To iterate on the TRMNL layout without waiting for a real scrape, `./run.sh --fake` posts a fixed set of sample metrics instead of launching Claude Code.
 
 ### 7. Install the scheduled job
 
