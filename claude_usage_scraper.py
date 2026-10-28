@@ -45,6 +45,21 @@ def info(*args):
 
 # ── pyte helpers ─────────────────────────────────────────────────────────────
 
+class TolerantScreen(pyte.Screen):
+    """
+    pyte.Screen that ignores DEC private status queries.
+
+    Claude Code sends ESC[?6n (DECXCPR) on startup. pyte's parser dispatches it
+    with private=True, but pyte 0.8.2's report_device_status() doesn't accept
+    that argument and raises TypeError. Nothing answers terminal queries here,
+    so dropping them is safe.
+    """
+
+    def report_device_status(self, mode: int, **kwargs: bool) -> None:
+        if not kwargs.get("private"):
+            super().report_device_status(mode)
+
+
 def render_screen(screen: pyte.Screen) -> str:
     """Flatten a pyte Screen into a plain-text string (no ANSI codes)."""
     lines = []
@@ -93,7 +108,7 @@ def scrape() -> dict:
 
     info(f"Using claude at: {claude_bin}")
 
-    screen = pyte.Screen(COLS, ROWS)
+    screen = TolerantScreen(COLS, ROWS)
     stream = pyte.ByteStream(screen)
 
     # ── Spawn ────────────────────────────────────────────────────────────────
@@ -111,7 +126,8 @@ def scrape() -> dict:
     # ── Wait for initial prompt ──────────────────────────────────────────────
     info("Waiting for interactive prompt…")
     try:
-        child.expect([b"> ", b"\xe2\x95\xb0"], timeout=25)
+        # "> " / "╰" = older boxed input; "❯" = current prompt between ─ rules
+        child.expect([b"> ", b"\xe2\x95\xb0", b"\xe2\x9d\xaf"], timeout=25)
         feed(stream, child.before)
         if child.after not in (pexpect.TIMEOUT, pexpect.EOF):
             feed(stream, child.after)
